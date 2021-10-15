@@ -4,8 +4,8 @@ const {newTask,removeTask,editTask,detailTask,listTask} = require('../controller
 
 //http://localhost:5000/api/todo
 rootRouter.post('/add',newTask)
-rootRouter.delete('/remove/:id',removeTask)
-rootRouter.put('/edit/:id',editTask)
+rootRouter.delete('/delete',removeTask)
+rootRouter.put('/edit/',editTask)
 rootRouter.get('/detail/:id',detailTask)
 rootRouter.get('/list',listTask)
 

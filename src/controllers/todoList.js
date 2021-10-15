@@ -3,12 +3,11 @@ const Task = require('../models')
 
 const newTask = async (req,res)=>{
     try {
-        const {name, status} = req.body
+        const data = req.body
         const newTask = await Task.create({
-            name, status
+            name: data.name, status: data.status
         })
-        console.log(newTask)
-        res.json({name,status})
+        res.json(newTask)
     }catch (e) {
         res.json(e)
     }
@@ -16,7 +15,7 @@ const newTask = async (req,res)=>{
 
 const removeTask = async (req,res)=>{
     try {
-        const {id} = req.params
+        const {id} = req.body
         const task = await Task.findOne({where: {id}, raw: true })
         if(task){
             await Task.destroy({where: {id}})
@@ -29,8 +28,7 @@ const removeTask = async (req,res)=>{
 
 const editTask = async (req,res)=>{
     try {
-        const {id} = req.params
-        const {name, status} = req.body
+        const {id, name, status} = req.body
         const task = await Task.findOne({where: {id}, raw: true })
         if(task){
             await Task.update({name, status},{where: {id}})
