@@ -1,63 +1,57 @@
 const express = require('express')
 const dotenv = require('dotenv')
-
 const cors = require('cors')
-
-
 const {connect, db } = require('./src/config/db.config')
 const rootRouter = require('./src/routes/rootRouter')
+const {Role} = require("./src/models");
 
-dotenv.config()
+
 const app = express()
+dotenv.config()
 
-app.use(cors())
+const corsOptions = {
+    origin: "http://localhost:5000/"
+};
+app.use(cors(corsOptions))
+app.use(function (req, res, next) {
+    res.header(
+        "Access-Control-Allow-Headers",
+        "x-access-token, Origin, Content-Type, Accept"
+    );
+    next();
+});
+
 
 //Config body parser
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
-
-// // CORS (Cross-Origin Resource Sharing) headers to support Cross-site HTTP requests
-// // Add headers before the routes are defined
-// app.use(function (req, res, next) {
-//     // // Website you wish to allow to connect
-//     // res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-//     //
-//     // // Request methods you wish to allow
-//     // res.setHeader(
-//     //     "Access-Control-Allow-Methods",
-//     //     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-//     // );
-//     //
-//     // // Request headers you wish to allow
-//     // res.setHeader(
-//     //     "Access-Control-Allow-Headers",
-//     //     "X-Requested-With,content-type"
-//     // );
-//     //
-//     // // Set to true if you need the website to include cookies in the requests sent
-//     // // to the API (e.g. in case you use sessions)
-//     // res.setHeader("Access-Control-Allow-Credentials", true);
-//
-//     res.setHeader("Access-Control-Allow-Origin", "*")
-//     res.setHeader("Access-Control-Allow-Credentials", "true");
-//     res.setHeader("Access-Control-Max-Age", "1800");
-//     res.setHeader("Access-Control-Allow-Headers", "content-type");
-//     res.setHeader( "Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, PATCH, OPTIONS" );
-//
-//     // Pass to next layer of middleware
-//     next();
-// });
-
 //Route
-app.use('/api',rootRouter)
+app.use(rootRouter)
 
 //Connect check database
 connect()
 
 // Database
 db.sync({ force: false }).then(() => {
-
+//
+//     function initial() {
+//         Role.create({
+//             id: 1,
+//             name: "user"
+//         });
+//
+//         Role.create({
+//             id: 2,
+//             name: "moderator"
+//         });
+//
+//         Role.create({
+//             id: 3,
+//             name: "admin"
+//         });
+//     }
+// initial()
     //Config port run server
     const port = process.env.PORT || 8100;
     app.listen(port, () => {

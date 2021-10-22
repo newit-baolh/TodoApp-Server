@@ -1,12 +1,19 @@
 const express = require('express')
 const rootRouter = express.Router()
-const {newTask,removeTask,editTask,detailTask,listTask} = require('../controllers/todoList.js')
 
-//http://localhost:5000/api/todo
-rootRouter.post('/add',newTask)
-rootRouter.delete('/delete',removeTask)
-rootRouter.put('/edit/',editTask)
-rootRouter.get('/detail/:id',detailTask)
-rootRouter.get('/list',listTask)
+const taskRoutes = require('./task.routes')
+const authRoutes = require('./auth.routes')
+const userRoutes = require('./user.routes')
+
+
+//http://localhost:5000/api
+
+
+rootRouter.use('/api',taskRoutes)
+
+rootRouter.use('/api/auth',authRoutes)
+
+rootRouter.use('/api/user',userRoutes)
+
 
 module.exports = rootRouter
