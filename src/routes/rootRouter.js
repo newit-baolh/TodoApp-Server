@@ -13,7 +13,7 @@ rootRouter.use('/api',taskRoutes)
 
 rootRouter.use('/api/auth',authRoutes)
 
-rootRouter.use('/api/user',userRoutes)
+rootRouter.use('/api',userRoutes)
 
 
 module.exports = rootRouter

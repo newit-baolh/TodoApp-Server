@@ -12,5 +12,7 @@ authRoutes.post("/signup",
     ],
     controller.signup)
 authRoutes.post("/signin", controller.signin)
+authRoutes.post('/confirmEmail',controller.confirmEmail)
+authRoutes.post('/verifyEmail',controller.verifyEmail)
 
 module.exports = authRoutes

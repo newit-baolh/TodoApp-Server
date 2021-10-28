@@ -3,6 +3,8 @@ const Sequelize = require('sequelize')
 const database = require('../models')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const nodemailer = require('nodemailer')
+const {where} = require("sequelize");
 
 const Op = Sequelize.Op
 
@@ -37,23 +39,24 @@ exports.signup = (req, res) => {
                     })
                 })
             }
+
         })
         .catch(err => {
             res.status(500).send({message: err.message})
         })
 }
 exports.signin = (req, res) => {
-    const {username, password} = req.body
+    const {email, password} = req.body
     database.User.findOne({
         where: {
-            username: username
+            email: email
         }
     })
         .then(user => {
             // Compare User
             if (!user) {
                 return res.status(404).send({
-                    message: "Người dùng không tồn tại."
+                    message: "Email không tồn tại."
                 })
             }
             // Compare Password
@@ -66,12 +69,13 @@ exports.signin = (req, res) => {
                     message: "Sai mật khẩu!"
                 })
             }
-
+            // Create token
             const token = jwt.sign(
                 {id: user.id}, config.secret, {
                     expiresIn: 86400 //24 hours
                 }
             )
+            // Response role
             let authorities = []
             user.getRoles().then(roles => {
                 for (let i = 0; i < roles.length; i++) {
@@ -82,7 +86,8 @@ exports.signin = (req, res) => {
                     username: user.username,
                     email: user.email,
                     roles: authorities,
-                    accessToken: token
+                    accessToken: token,
+                    isVerify: user.isVerify
                 })
             })
 
@@ -90,4 +95,58 @@ exports.signin = (req, res) => {
         .catch(err => {
             res.status(500).send({message: err.message})
         })
+}
+
+exports.confirmEmail = (req, res) => {
+    const {email, accessToken} = req.body
+    req.user = {email, accessToken}
+    database.User.findOne({where: {email: email}}).then(user => {
+        if (!user) {
+            return res.status(404).send({
+                message: "Email không tồn tại."
+            })
+        }
+        if (user.isVerify === true) {
+            return res.status(200).send('User has been already verified. Please Login');
+        }
+        let transport = nodemailer.createTransport({
+            host: "smtp.mailtrap.io",
+            port: 2525,
+            auth: {
+                user: "b70376426d2c0f",
+                pass: "fc8724cc7a855c"
+            }
+        })
+
+        let mailOptions = {
+            from: "verify-email@todo.com",
+            to: user.email,
+            subject: "Account Verification Link",
+            text: `Hello ${user.username}`,
+            html: `<a href="http://localhost:3000/verified">Please verify your account by clicking here </a>`
+        }
+        transport.sendMail(mailOptions, (err) => {
+            if (err) {
+                return res.status(500).send({message: 'Technical Issue!, Please click on resend for verify your Email.'})
+            }
+            return res.status(200).send(`A verification email has been sent to ${user.email}`)
+        })
+
+    })
+}
+exports.verifyEmail = (req, res) => {
+    const {email, accessToken} = req.body
+    if (!(email && accessToken)) return
+    database.User.findOne({where: {email: email}}).then(user => {
+        if(!user)return
+        user.update({isVerify: true}, {where: {email: user.email}})
+        return res.status(200).send({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            roles: this.roles,
+            accessToken: accessToken,
+            isVerify: user.isVerify
+        })
+    })
 }

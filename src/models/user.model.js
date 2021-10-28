@@ -9,6 +9,10 @@ const user = {
     },
     password: {
         type: DataTypes.STRING
+    },
+    isVerify: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     }
 }
 

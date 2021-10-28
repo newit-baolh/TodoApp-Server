@@ -12,6 +12,7 @@ const tasks = {
   description: {
     type: DataTypes.TEXT,
   }
+
 }
 
 module.exports = tasks

@@ -3,7 +3,6 @@ const database = require('../models/index.js')
 
 const newTask = async (req, res) => {
   try {
-    console.log(req.body)
     const data = req.body.data
     const newTask = await database.Task.create({
       name: data.name,
@@ -21,7 +20,7 @@ const removeTask = async (req, res) => {
     const { id } = req.params
     const task = await database.Task.findOne({ where: { id }, raw: true })
     if (task) {
-      await Task.destroy({ where: { id } })
+      await database.Task.destroy({ where: { id } })
       res.json(task)
     }
   } catch (e) {
@@ -59,13 +58,8 @@ const detailTask = async (req, res) => {
 }
 
 const listTask = async (req, res) => {
-  console.log(req)
   try {
     const task = await database.Task.findAll({ raw: true })
-    // const task = await database.Task.findAndCountAll({
-    //   where: { name: { [Op.like]: `%${req.query.keyword}%` } },
-    // })
-    // console.log(JSON.stringify(task, null, ' '))
     if (task) {
       res.json(task)
     }
